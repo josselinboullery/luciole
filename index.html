@@ -314,9 +314,9 @@
     .abt-grid { display:grid; grid-template-columns:1fr 1.3fr; gap:clamp(3rem,8vw,8rem); align-items:center; }
     @media(max-width:768px){.abt-grid{grid-template-columns:1fr}}
 
-    .abt-img-wrap { position:relative; }
+    .abt-img-wrap { position:relative; display:flex; justify-content:center; }
     .abt-photo {
-      width:100%; aspect-ratio:3/4;
+      width:220px; aspect-ratio:3/4;
       background:var(--card); border:1px solid var(--border); border-radius:var(--r);
       overflow:hidden; display:flex; align-items:center; justify-content:center;
     }
