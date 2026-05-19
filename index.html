@@ -865,7 +865,9 @@
         </div>
       </div>
 
-      <form class="form reveal d2" id="contact-form">
+      <form class="form reveal d2" id="contact-form" name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="contact">
+        <input type="hidden" name="bot-field" style="display:none">
         <div class="frow">
           <div class="fgrp">
             <label for="fname">Votre nom</label>
@@ -1044,19 +1046,37 @@
       });
     });
 
-    // ── FORM ────────────────────────────────────────────────
-    document.getElementById('contact-form').addEventListener('submit', e => {
+    // ── FORM (Netlify AJAX) ──────────────────────────────
+    document.getElementById('contact-form').addEventListener('submit', async e => {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
-      btn.innerHTML = 'Message envoyé ✓';
-      btn.style.background = '#4ade80';
+      const form = e.target;
+      const svgArrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      btn.innerHTML = 'Envoi en cours…';
       btn.style.pointerEvents = 'none';
-      setTimeout(() => {
-        btn.innerHTML = 'Envoyer ma demande <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        btn.style.background = '';
-        btn.style.pointerEvents = '';
-        e.target.reset();
-      }, 3500);
+      try {
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form)).toString()
+        });
+        btn.innerHTML = 'Message envoyé ✓';
+        btn.style.background = '#4ade80';
+        form.reset();
+        setTimeout(() => {
+          btn.innerHTML = 'Envoyer ma demande ' + svgArrow;
+          btn.style.background = '';
+          btn.style.pointerEvents = '';
+        }, 4000);
+      } catch(err) {
+        btn.innerHTML = 'Erreur — réessayez';
+        btn.style.background = '#f87171';
+        setTimeout(() => {
+          btn.innerHTML = 'Envoyer ma demande ' + svgArrow;
+          btn.style.background = '';
+          btn.style.pointerEvents = '';
+        }, 3000);
+      }
     });
   </script>
 </body>
