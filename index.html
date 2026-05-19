@@ -1050,21 +1050,26 @@
     document.getElementById('contact-form').addEventListener('submit', async e => {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
-      const form = e.target;
       const svgArrow = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       btn.innerHTML = 'Envoi en cours…';
       btn.style.pointerEvents = 'none';
       try {
-        const encoded = new URLSearchParams();
-        new FormData(form).forEach((value, key) => encoded.append(key, value));
-        await fetch('/', {
+        const body = [
+          'form-name=contact',
+          'name='    + encodeURIComponent(document.getElementById('fname').value),
+          'email='   + encodeURIComponent(document.getElementById('femail').value),
+          'phone='   + encodeURIComponent(document.getElementById('fphone').value),
+          'type='    + encodeURIComponent(document.getElementById('ftype').value),
+          'message=' + encodeURIComponent(document.getElementById('fmsg').value)
+        ].join('&');
+        await fetch(window.location.pathname, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: encoded.toString()
+          body
         });
         btn.innerHTML = 'Message envoyé ✓';
         btn.style.background = '#4ade80';
-        form.reset();
+        document.getElementById('contact-form').reset();
         setTimeout(() => {
           btn.innerHTML = 'Envoyer ma demande ' + svgArrow;
           btn.style.background = '';
