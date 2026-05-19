@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luciole Studio — Design Web · Valence | Josselin Boullery</title>
+  <meta name="description" content="Luciole, studio de design web à Valence. Josselin Boullery crée des sites internet sur mesure, esthétiques et performants pour les entreprises ambitieuses.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <style>
+    /* ─── RESET ────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #060610;
+      --surface:  #0c0c1f;
+      --card:     #111128;
+      --border:   rgba(255,255,255,0.07);
+      --text:     #ede9e0;
+      --muted:    rgba(237,233,224,0.42);
+      --accent:   #c2ff4d;
+      --aRGB:     194,255,77;
+      --r:        14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── SCROLL PROGRESS ──────────────────────────────── */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 300;
+      transition: width 0.08s linear;
+    }
+
+    /* ─── CURSOR ───────────────────────────────────────── */
+    #cur { width:8px; height:8px; background:var(--accent); border-radius:50%; position:fixed; top:0;left:0; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform 0.15s ease, background 0.3s ease; }
+    #cur-ring { width:40px; height:40px; border:1px solid rgba(194,255,77,0.4); border-radius:50%; position:fixed; top:0;left:0; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); }
+    #cur.active { transform:translate(-50%,-50%) scale(2.8); background:var(--accent); }
+    #cur-ring.active { border-color:rgba(194,255,77,0.6); }
+
+    /* ─── PRELOADER ────────────────────────────────────── */
+    #preloader {
+      position:fixed; inset:0; background:var(--bg); z-index:10000;
+      display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2rem;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+    #preloader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+    .pl-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 7vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      display: flex; gap: 0.05em;
+      overflow: hidden;
+    }
+    .pl-logo span {
+      display:inline-block;
+      transform: translateY(110%);
+      animation: slideUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .pl-logo span:nth-child(1){animation-delay:.05s}
+    .pl-logo span:nth-child(2){animation-delay:.10s}
+    .pl-logo span:nth-child(3){animation-delay:.15s}
+    .pl-logo span:nth-child(4){animation-delay:.20s}
+    .pl-logo span:nth-child(5){animation-delay:.25s}
+    .pl-logo span:nth-child(6){animation-delay:.30s}
+    .pl-logo span:nth-child(7){animation-delay:.35s}
+
+    .pl-bar {
+      width: 200px; height: 1px; background: var(--border); overflow:hidden;
+      opacity:0; animation: fadeIn 0.4s ease 0.6s forwards;
+    }
+    .pl-bar-inner {
+      height:100%; width:0%; background:var(--accent);
+      animation: loadBar 1.2s cubic-bezier(0.4,0,0.2,1) 0.7s forwards;
+    }
+    @keyframes loadBar { to { width:100%; } }
+    @keyframes slideUp { to { transform:translateY(0); } }
+    @keyframes fadeIn { to { opacity:1; } }
+
+    /* ─── NAV ──────────────────────────────────────────── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding: 1.5rem clamp(1.5rem,5vw,4rem);
+      display:flex; align-items:center; justify-content:space-between;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
+    }
+    nav.scrolled {
+      background: rgba(6,6,16,0.88);
+      backdrop-filter: blur(24px);
+      padding-top: 1rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family:'Syne',sans-serif; font-size:1.35rem; font-weight:800;
+      letter-spacing:0.2em; text-transform:uppercase;
+      text-decoration:none; color:var(--text);
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .logo-dot {
+      width:7px; height:7px; background:var(--accent); border-radius:50%;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100%{box-shadow:0 0 0 0 rgba(194,255,77,0.4);}
+      50%{box-shadow:0 0 0 6px rgba(194,255,77,0);}
+    }
+    .nav-links { display:flex; align-items:center; gap:2.5rem; list-style:none; }
+    .nav-links a { text-decoration:none; color:var(--muted); font-size:0.88rem; font-weight:400; letter-spacing:0.04em; transition:color 0.3s ease; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-cta {
+      background:var(--accent) !important; color:#060610 !important;
+      padding:0.6rem 1.5rem; border-radius:100px; font-weight:600 !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    .nav-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(194,255,77,0.3); }
+
+    @media(max-width:640px){
+      .nav-links li:not(:last-child){ display:none; }
+    }
+
+    /* ─── HERO ─────────────────────────────────────────── */
+    #hero {
+      min-height:100svh; position:relative; overflow:hidden;
+      display:flex; flex-direction:column; justify-content:center;
+      padding: 0 clamp(1.5rem,5vw,4rem);
+      padding-top: 140px;
+    }
+    #hero::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse 80% 60% at 70% 40%, rgba(194,255,77,0.05) 0%, transparent 65%),
+                  radial-gradient(ellipse 50% 50% at 20% 80%, rgba(108,92,231,0.07) 0%, transparent 55%);
+    }
+    #fireflies { position:absolute; inset:0; pointer-events:none; }
+
+    .hero-label {
+      display:inline-flex; align-items:center; gap:0.7rem;
+      font-size:0.78rem; font-weight:500; letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:2rem;
+      opacity:0; transform:translateY(16px);
+      animation: fadeUp 0.7s ease 1.3s forwards;
+    }
+    .hero-label::before { content:''; width:24px; height:1px; background:var(--accent); }
+
+    h1.hero-title {
+      font-family:'Syne',sans-serif;
+      font-size: clamp(3.4rem,9.5vw,10.5rem);
+      font-weight:800; line-height:0.93; letter-spacing:-0.03em;
+      margin-bottom:2.5rem; max-width:14ch;
+    }
+    .tline { overflow:hidden; display:block; }
+    .tline-inner { display:block; transform:translateY(110%); animation:slideUp 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .tline:nth-child(1) .tline-inner{animation-delay:1.4s}
+    .tline:nth-child(2) .tline-inner{animation-delay:1.55s}
+    .tline:nth-child(3) .tline-inner{animation-delay:1.7s}
+    .hero-title em { font-style:normal; color:var(--accent); }
+
+    .hero-sub {
+      font-size:clamp(1rem,1.8vw,1.18rem); font-weight:300;
+      color:var(--muted); max-width:46ch; line-height:1.75;
+      margin-bottom:3rem;
+      opacity:0; transform:translateY(16px);
+      animation:fadeUp 0.7s ease 2s forwards;
+    }
+    .hero-actions {
+      display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+      opacity:0; transform:translateY(16px);
+      animation:fadeUp 0.7s ease 2.2s forwards;
+    }
+
+    .btn-primary {
+      display:inline-flex; align-items:center; gap:0.6rem;
+      background:var(--accent); color:#060610;
+      text-decoration:none; font-size:0.95rem; font-weight:600;
+      padding:1rem 2rem; border-radius:100px;
+      transition:transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(194,255,77,0.35); }
+    .btn-primary svg,.btn-ghost svg { transition:transform 0.3s ease; }
+    .btn-primary:hover svg,.btn-ghost:hover svg { transform:translateX(4px); }
+
+    .btn-ghost {
+      display:inline-flex; align-items:center; gap:0.6rem;
+      color:var(--text); text-decoration:none; font-size:0.95rem; font-weight:400;
+      padding-bottom:2px; border-bottom:1px solid var(--border);
+      transition:border-color 0.3s ease, gap 0.3s ease;
+    }
+    .btn-ghost:hover { border-color:var(--text); gap:1rem; }
+
+    .hero-stats {
+      display:flex; gap:clamp(2rem,6vw,5rem); margin-top:auto;
+      padding-top:3.5rem; padding-bottom:3rem;
+      border-top:1px solid var(--border);
+      opacity:0; animation:fadeUp 0.7s ease 2.4s forwards;
+    }
+    .stat-num {
+      font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem);
+      font-weight:800; line-height:1;
+    }
+    .stat-num span { color:var(--accent); }
+    .stat-lbl { font-size:0.75rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-top:0.35rem; }
+
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+    /* ─── MARQUEE ──────────────────────────────────────── */
+    .marquee-wrap {
+      overflow:hidden; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      padding:1.4rem 0; white-space:nowrap; background:var(--surface);
+    }
+    .marquee-track {
+      display:inline-flex; gap:0; white-space:nowrap;
+      animation:marquee 28s linear infinite;
+    }
+    .marquee-item {
+      display:inline-flex; align-items:center; gap:1.8rem; padding:0 1.8rem;
+      font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700;
+      letter-spacing:0.25em; text-transform:uppercase; color:var(--muted);
+    }
+    .marquee-item .m-dot { color:var(--accent); font-size:1rem; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ─── SECTIONS BASE ────────────────────────────────── */
+    section { padding:clamp(80px,12vw,140px) clamp(1.5rem,5vw,4rem); }
+
+    .sec-label {
+      display:inline-flex; align-items:center; gap:0.6rem;
+      font-size:0.72rem; font-weight:600; letter-spacing:0.22em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:1.4rem;
+    }
+    .sec-label::before { content:''; width:18px; height:1px; background:var(--accent); }
+
+    .reveal {
+      opacity:0; transform:translateY(36px);
+      transition:opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.in { opacity:1; transform:translateY(0); }
+    .d1{transition-delay:0.1s}.d2{transition-delay:0.2s}.d3{transition-delay:0.3s}.d4{transition-delay:0.4s}
+
+    /* ─── MANIFESTO ────────────────────────────────────── */
+    #manifesto { background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .mani-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(2rem,7vw,7rem); align-items:center; }
+    @media(max-width:768px){.mani-grid{grid-template-columns:1fr}}
+
+    .mani-title {
+      font-family:'Syne',sans-serif; font-size:clamp(1.9rem,4vw,3.8rem);
+      font-weight:800; line-height:1.15; letter-spacing:-0.025em;
+    }
+    .mani-dim { color:var(--muted); font-weight:400; font-family:'Inter',sans-serif; font-style:italic; font-size:0.92em; }
+    .mani-body { color:var(--muted); line-height:1.8; font-size:1rem; font-weight:300; }
+    .mani-body + .mani-body { margin-top:1.1rem; }
+
+    /* ─── SERVICES ─────────────────────────────────────── */
+    #services .srv-hdr {
+      display:flex; justify-content:space-between; align-items:flex-end;
+      margin-bottom:3.5rem; flex-wrap:wrap; gap:1.5rem;
+    }
+    #services h2 {
+      font-family:'Syne',sans-serif; font-size:clamp(2.2rem,5vw,4rem);
+      font-weight:800; letter-spacing:-0.03em; line-height:1.05;
+    }
+    .srv-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:1.5px; background:var(--border); border:1.5px solid var(--border);
+    }
+    @media(max-width:900px){.srv-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:540px){.srv-grid{grid-template-columns:1fr}}
+
+    .srv-card {
+      background:var(--bg); padding:2.5rem 2rem;
+      display:flex; flex-direction:column; gap:0.9rem;
+      position:relative; overflow:hidden;
+      transition:background 0.4s ease;
+    }
+    .srv-card::after {
+      content:''; position:absolute; top:0; left:0;
+      width:3px; height:0; background:var(--accent);
+      transition:height 0.45s cubic-bezier(0.16,1,0.3,1);
+    }
+    .srv-card:hover { background:var(--card); }
+    .srv-card:hover::after { height:100%; }
+
+    .srv-n { font-family:'Syne',sans-serif; font-size:0.72rem; color:var(--accent); letter-spacing:0.18em; }
+    .srv-ico {
+      width:46px; height:46px; border:1px solid var(--border); border-radius:12px;
+      display:flex; align-items:center; justify-content:center; color:var(--accent);
+      transition:border-color 0.3s ease, background 0.3s ease;
+    }
+    .srv-card:hover .srv-ico { border-color:var(--accent); background:rgba(194,255,77,0.07); }
+    .srv-title { font-family:'Syne',sans-serif; font-size:1.25rem; font-weight:700; }
+    .srv-desc { font-size:0.88rem; color:var(--muted); line-height:1.7; font-weight:300; }
+    .srv-tags { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:auto; padding-top:0.8rem; }
+    .tag {
+      font-size:0.7rem; padding:0.22rem 0.65rem; border:1px solid var(--border);
+      border-radius:100px; color:var(--muted); letter-spacing:0.04em;
+    }
+
+    /* ─── ABOUT ────────────────────────────────────────── */
+    #about { background:var(--surface); }
+    .abt-grid { display:grid; grid-template-columns:1fr 1.3fr; gap:clamp(3rem,8vw,8rem); align-items:center; }
+    @media(max-width:768px){.abt-grid{grid-template-columns:1fr}}
+
+    .abt-img-wrap { position:relative; }
+    .abt-photo {
+      width:100%; aspect-ratio:3/4;
+      background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+      overflow:hidden; display:flex; align-items:center; justify-content:center;
+    }
+    .abt-photo-bg {
+      width:100%; height:100%;
+      object-fit:cover; object-position:center top;
+      display:block;
+    }
+    .abt-badge {
+      position:absolute; bottom:-1rem; right:-1rem;
+      background:var(--accent); color:#060610;
+      padding:1.3rem 1.5rem; border-radius:var(--r); text-align:center;
+    }
+    .badge-n { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; line-height:1; display:block; }
+    .badge-l { font-family:'Syne',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+
+    #about h2 {
+      font-family:'Syne',sans-serif; font-size:clamp(2rem,4vw,3.2rem);
+      font-weight:800; letter-spacing:-0.03em; line-height:1.1; margin-bottom:1.5rem;
+    }
+    .abt-p { color:var(--muted); line-height:1.8; font-size:1rem; font-weight:300; margin-bottom:1.2rem; }
+
+    .abt-vals { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; margin-top:2rem; }
+    .val-item { display:flex; align-items:flex-start; gap:0.75rem; }
+    .val-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; flex-shrink:0; margin-top:0.5rem; }
+    .val-txt { font-size:0.88rem; color:var(--text); font-weight:400; }
+
+    /* ─── PROJECTS ─────────────────────────────────────── */
+    #projects .prj-hdr { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; flex-wrap:wrap; gap:1.5rem; }
+    #projects h2 { font-family:'Syne',sans-serif; font-size:clamp(2.2rem,5vw,4rem); font-weight:800; letter-spacing:-0.03em; line-height:1.05; }
+
+    .prj-grid { display:grid; grid-template-columns:1fr; gap:1.5rem; }
+
+    .prj-card {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+      overflow:hidden; text-decoration:none; color:var(--text); display:block;
+      transition:transform 0.45s cubic-bezier(0.16,1,0.3,1), box-shadow 0.45s ease;
+    }
+    .prj-card:hover { transform:translateY(-8px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
+
+    /* Browser chrome mockup */
+    .prj-browser { width:100%; background:#1a1a2e; overflow:hidden; }
+    .prj-bar {
+      display:flex; align-items:center; gap:1rem; padding:0.75rem 1.2rem;
+      background:#0f0f1e; border-bottom:1px solid var(--border);
+    }
+    .prj-dots { display:flex; gap:0.4rem; }
+    .prj-dots span { width:10px; height:10px; border-radius:50%; }
+    .prj-dots span:nth-child(1){background:#ff5f57}
+    .prj-dots span:nth-child(2){background:#febc2e}
+    .prj-dots span:nth-child(3){background:#28c840}
+    .prj-url-bar {
+      flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border);
+      border-radius:6px; padding:0.3rem 0.8rem;
+      font-size:0.78rem; color:var(--muted); letter-spacing:0.02em;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .prj-url-bar svg { opacity:0.4; flex-shrink:0; }
+
+    .prj-screen {
+      width:100%; aspect-ratio:16/9; overflow:hidden; position:relative;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .prj-screen iframe {
+      width:100%; height:100%; border:none;
+      pointer-events:none; opacity:0;
+      transition:opacity 0.6s ease;
+    }
+    .prj-screen-fallback {
+      position:absolute; inset:0;
+      background:linear-gradient(145deg,#0a1628 0%,#0d1f3c 40%,#07111f 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem;
+    }
+    .prj-screen-fallback .site-name {
+      font-family:'Syne',sans-serif; font-size:clamp(2rem,5vw,4rem); font-weight:800;
+      letter-spacing:0.05em; color:rgba(255,255,255,0.9);
+    }
+    .prj-screen-fallback .site-name em { font-style:normal; color:var(--accent); }
+    .prj-screen-fallback .site-tagline {
+      font-size:0.85rem; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase;
+    }
+
+    .prj-info { padding:2rem 2.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; }
+    .prj-info-left {}
+    .prj-cat { font-size:0.72rem; color:var(--accent); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:0.45rem; }
+    .prj-name { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700; margin-bottom:0.35rem; }
+    .prj-blurb { font-size:0.88rem; color:var(--muted); font-weight:300; max-width:50ch; }
+    .prj-visit {
+      display:inline-flex; align-items:center; gap:0.6rem;
+      background:var(--accent); color:#060610; text-decoration:none;
+      font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700;
+      padding:0.8rem 1.6rem; border-radius:100px; white-space:nowrap;
+      transition:transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .prj-visit:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(194,255,77,0.3); }
+
+    /* ─── PROCESS ──────────────────────────────────────── */
+    #process { background:var(--surface); }
+    #process h2 { font-family:'Syne',sans-serif; font-size:clamp(2.2rem,5vw,4rem); font-weight:800; letter-spacing:-0.03em; margin-bottom:4rem; }
+
+    .proc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+    @media(max-width:900px){.proc-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:480px){.proc-grid{grid-template-columns:1fr}}
+
+    .step {
+      padding:2.2rem 1.8rem; background:var(--card); border:1px solid var(--border);
+      border-radius:var(--r); position:relative; overflow:hidden;
+      transition:border-color 0.4s ease;
+    }
+    .step:hover { border-color:rgba(194,255,77,0.2); }
+    .step-n {
+      font-family:'Syne',sans-serif; font-size:3rem; font-weight:800;
+      color:var(--border); line-height:1; margin-bottom:1.4rem;
+      transition:color 0.4s ease;
+    }
+    .step:hover .step-n { color:rgba(194,255,77,0.12); }
+    .step-t { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:0.8rem; }
+    .step-d { font-size:0.87rem; color:var(--muted); line-height:1.7; font-weight:300; }
+
+    /* ─── CTA ──────────────────────────────────────────── */
+    #cta {
+      text-align:center;
+      background:radial-gradient(ellipse 80% 70% at 50% 50%, rgba(194,255,77,0.07) 0%, transparent 70%);
+      border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+    }
+    #cta h2 {
+      font-family:'Syne',sans-serif; font-size:clamp(2.8rem,7vw,6rem);
+      font-weight:800; letter-spacing:-0.04em; line-height:0.95;
+      margin-bottom:1.5rem; max-width:16ch; margin-left:auto; margin-right:auto;
+    }
+    #cta p { color:var(--muted); font-size:1.05rem; font-weight:300; line-height:1.75; max-width:44ch; margin:0 auto 3rem; }
+
+    /* ─── CONTACT ──────────────────────────────────────── */
+    #contact { background:var(--surface); }
+    .cnt-grid { display:grid; grid-template-columns:1fr 1.6fr; gap:clamp(3rem,8vw,8rem); }
+    @media(max-width:768px){.cnt-grid{grid-template-columns:1fr}}
+
+    #contact h2 { font-family:'Syne',sans-serif; font-size:clamp(2rem,4vw,3.2rem); font-weight:800; letter-spacing:-0.03em; line-height:1.1; margin-bottom:2rem; }
+
+    .cnt-items { display:flex; flex-direction:column; gap:1.4rem; margin-bottom:2.5rem; }
+    .cnt-item { display:flex; align-items:flex-start; gap:1rem; }
+    .cnt-ico {
+      width:42px; height:42px; border:1px solid var(--border); border-radius:10px;
+      display:flex; align-items:center; justify-content:center; color:var(--accent); flex-shrink:0;
+    }
+    .cnt-lbl { font-size:0.72rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.2rem; }
+    .cnt-val { font-size:0.92rem; color:var(--text); font-weight:400; }
+    .cnt-val a { color:var(--text); text-decoration:none; transition:color 0.3s; }
+    .cnt-val a:hover { color:var(--accent); }
+
+    .form { display:flex; flex-direction:column; gap:1.1rem; }
+    .frow { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+    @media(max-width:480px){.frow{grid-template-columns:1fr}}
+    .fgrp { display:flex; flex-direction:column; gap:0.45rem; }
+    .fgrp label { font-size:0.73rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; font-weight:500; }
+    .fgrp input,.fgrp select,.fgrp textarea {
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      padding:0.85rem 1.1rem; color:var(--text); font-family:'Inter',sans-serif;
+      font-size:0.93rem; font-weight:300; transition:border-color 0.3s ease, background 0.3s ease;
+      outline:none; width:100%; appearance:none; cursor:none;
+    }
+    .fgrp input:focus,.fgrp select:focus,.fgrp textarea:focus {
+      border-color:var(--accent); background:rgba(194,255,77,0.04);
+    }
+    .fgrp input::placeholder,.fgrp textarea::placeholder { color:rgba(237,233,224,0.18); }
+    .fgrp select option { background:var(--card); }
+    .fgrp textarea { resize:vertical; min-height:140px; }
+
+    .btn-sub {
+      display:inline-flex; align-items:center; justify-content:center; gap:0.65rem;
+      background:var(--accent); color:#060610; border:none; border-radius:100px;
+      padding:1.1rem 2.5rem; font-family:'Syne',sans-serif; font-size:0.98rem; font-weight:700;
+      letter-spacing:0.04em; cursor:none; align-self:flex-start;
+      transition:transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    }
+    .btn-sub:hover { transform:translateY(-3px); box-shadow:0 16px 42px rgba(194,255,77,0.3); }
+
+    /* ─── FOOTER ───────────────────────────────────────── */
+    footer { padding:4rem clamp(1.5rem,5vw,4rem) 2rem; border-top:1px solid var(--border); }
+    .ftr-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3rem; flex-wrap:wrap; gap:2rem; }
+
+    .ftr-logo {
+      font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800;
+      letter-spacing:0.18em; text-decoration:none; color:var(--text);
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .ftr-tag { font-size:0.83rem; color:var(--muted); margin-top:0.4rem; font-weight:300; }
+
+    .ftr-nav { display:flex; gap:4rem; flex-wrap:wrap; }
+    .ftr-col h4 { font-family:'Syne',sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
+    .ftr-col ul { list-style:none; display:flex; flex-direction:column; gap:0.55rem; }
+    .ftr-col a { text-decoration:none; color:var(--muted); font-size:0.88rem; font-weight:300; transition:color 0.3s; }
+    .ftr-col a:hover { color:var(--text); }
+
+    .ftr-bot {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-top:2rem; border-top:1px solid var(--border);
+      flex-wrap:wrap; gap:1rem;
+    }
+    .ftr-copy { font-size:0.78rem; color:var(--muted); font-weight:300; }
+    .ftr-siret { font-size:0.72rem; color:rgba(237,233,224,0.22); }
+  </style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+  <div id="cur"></div>
+  <div id="cur-ring"></div>
+
+  <!-- ── PRELOADER ─────────────────────────────────────── -->
+  <div id="preloader">
+    <div class="pl-logo">
+      <span>L</span><span>U</span><span>C</span><span>I</span><span>O</span><span>L</span><span>E</span>
+    </div>
+    <div class="pl-bar"><div class="pl-bar-inner"></div></div>
+  </div>
+
+  <!-- ── NAV ───────────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">LUCIOLE <span class="logo-dot"></span></a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#projects">Réalisations</a></li>
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#contact" class="nav-cta">Démarrer un projet</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ──────────────────────────────────────────── -->
+  <section id="hero">
+    <canvas id="fireflies"></canvas>
+
+    <p class="hero-label">Studio de Design Web &nbsp;·&nbsp; Valence, Drôme</p>
+
+    <h1 class="hero-title">
+      <span class="tline"><span class="tline-inner">Votre site</span></span>
+      <span class="tline"><span class="tline-inner">comme vous</span></span>
+      <span class="tline"><span class="tline-inner">en <em>rêviez.</em></span></span>
+    </h1>
+
+    <p class="hero-sub">
+      Josselin Boullery conçoit des sites internet sur mesure — esthétiques,
+      performants, pensés pour convertir vos visiteurs en clients.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">
+        Démarrer un projet
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#projects" class="btn-ghost">
+        Voir les réalisations
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">12<span>+</span></div>
+        <div class="stat-lbl">Années d'expérience</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">80<span>+</span></div>
+        <div class="stat-lbl">Sites réalisés</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100<span>%</span></div>
+        <div class="stat-lbl">Satisfaction client</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MARQUEE ────────────────────────────────────────── -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item">Design Web <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Développement <span class="m-dot">✦</span></span>
+      <span class="marquee-item">E-commerce <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Identité Visuelle <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Référencement SEO <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Valence, Drôme <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Design Web <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Développement <span class="m-dot">✦</span></span>
+      <span class="marquee-item">E-commerce <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Identité Visuelle <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Référencement SEO <span class="m-dot">✦</span></span>
+      <span class="marquee-item">Valence, Drôme <span class="m-dot">✦</span></span>
+    </div>
+  </div>
+
+  <!-- ── MANIFESTO ──────────────────────────────────────── -->
+  <section id="manifesto">
+    <div class="mani-grid">
+      <div class="reveal">
+        <p class="mani-title">
+          Votre site est votre meilleur commercial.
+          <span class="mani-dim">Il devrait travailler pour vous, 24h/24.</span>
+        </p>
+      </div>
+      <div>
+        <p class="mani-body reveal d1">
+          Dans un monde où tout se décide en quelques secondes, un site médiocre coûte
+          plus cher qu'il ne rapporte. Chez Luciole, chaque pixel est pensé, chaque
+          interaction conçue pour transformer vos visiteurs en clients.
+        </p>
+        <p class="mani-body reveal d2">
+          Notre approche allie design d'auteur, développement sur mesure et stratégie
+          digitale — pour des sites qui ne ressemblent qu'à vous et qui génèrent
+          des résultats mesurables.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SERVICES ───────────────────────────────────────── -->
+  <section id="services">
+    <div class="srv-hdr">
+      <div>
+        <div class="sec-label reveal">Nos expertises</div>
+        <h2 class="reveal">Ce que nous<br>créons pour vous</h2>
+      </div>
+      <a href="#contact" class="btn-ghost reveal" style="margin-bottom:0.25rem">
+        Discuter de votre projet
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="srv-grid">
+      <div class="srv-card reveal">
+        <div class="srv-n">01</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="srv-title">Site Vitrine</div>
+        <div class="srv-desc">Votre présence digitale de référence. Un site élégant, rapide et optimisé pour convertir vos visiteurs en prospects qualifiés.</div>
+        <div class="srv-tags"><span class="tag">Design sur mesure</span><span class="tag">Responsive</span><span class="tag">Performance</span></div>
+      </div>
+
+      <div class="srv-card reveal d1">
+        <div class="srv-n">02</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div class="srv-title">E-commerce</div>
+        <div class="srv-desc">Boutiques en ligne performantes, pensées pour l'expérience d'achat et l'augmentation du panier moyen.</div>
+        <div class="srv-tags"><span class="tag">WooCommerce</span><span class="tag">Paiement sécurisé</span><span class="tag">UX optimisée</span></div>
+      </div>
+
+      <div class="srv-card reveal d2">
+        <div class="srv-n">03</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        </div>
+        <div class="srv-title">Référencement SEO</div>
+        <div class="srv-desc">Optimisation technique et éditoriale pour vous positionner durablement sur Google et attirer un trafic qualifié.</div>
+        <div class="srv-tags"><span class="tag">Audit SEO</span><span class="tag">Contenu optimisé</span><span class="tag">Netlinking</span></div>
+      </div>
+
+      <div class="srv-card reveal">
+        <div class="srv-n">04</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="srv-title">Identité Visuelle</div>
+        <div class="srv-desc">Logo, charte graphique, univers de marque — une identité forte et cohérente qui vous distingue et marque les esprits.</div>
+        <div class="srv-tags"><span class="tag">Logo</span><span class="tag">Charte graphique</span><span class="tag">Branding</span></div>
+      </div>
+
+      <div class="srv-card reveal d1">
+        <div class="srv-n">05</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="srv-title">Application Web</div>
+        <div class="srv-desc">Outils métier sur mesure, espaces membres, tableaux de bord — des applications robustes et intuitives.</div>
+        <div class="srv-tags"><span class="tag">React / Vue</span><span class="tag">Back-end</span><span class="tag">API</span></div>
+      </div>
+
+      <div class="srv-card reveal d2">
+        <div class="srv-n">06</div>
+        <div class="srv-ico">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="srv-title">Maintenance & Support</div>
+        <div class="srv-desc">Votre site évolue, nous l'assurons. Mises à jour, sauvegardes automatisées, sécurité et assistance réactive.</div>
+        <div class="srv-tags"><span class="tag">Sécurité</span><span class="tag">Mises à jour</span><span class="tag">Support</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ──────────────────────────────────────────── -->
+  <section id="about">
+    <div class="abt-grid">
+      <div class="abt-img-wrap reveal">
+        <div class="abt-photo">
+          <img class="abt-photo-bg" src="profile-pic.png" alt="Josselin Boullery — Designer & Développeur Web">
+        </div>
+        <div class="abt-badge">
+          <span class="badge-n">12</span>
+          <span class="badge-l">ans d'exp.</span>
+        </div>
+      </div>
+
+      <div class="abt-content">
+        <div class="sec-label reveal">À propos</div>
+        <h2 class="reveal">Josselin Boullery,<br>designer & développeur</h2>
+        <p class="abt-p reveal d1">
+          Passionné par l'intersection entre art et technologie, je crée des sites
+          internet qui ne ressemblent à aucun autre — des expériences digitales taillées
+          sur mesure, pensées jusqu'au moindre détail.
+        </p>
+        <p class="abt-p reveal d2">
+          Basé à Valence, dans la Drôme, j'accompagne des entrepreneurs, des PME et
+          des marques ambitieuses dans leur transformation digitale depuis plus de 12 ans.
+          Chaque projet est pour moi l'occasion de créer quelque chose de vraiment unique.
+        </p>
+        <div class="abt-vals reveal d3">
+          <div class="val-item"><div class="val-dot"></div><div class="val-txt">Design intentionnel</div></div>
+          <div class="val-item"><div class="val-dot"></div><div class="val-txt">Code propre & performant</div></div>
+          <div class="val-item"><div class="val-dot"></div><div class="val-txt">Accompagnement personnalisé</div></div>
+          <div class="val-item"><div class="val-dot"></div><div class="val-txt">Résultats mesurables</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ───────────────────────────────────────── -->
+  <section id="projects">
+    <div class="prj-hdr">
+      <div>
+        <div class="sec-label reveal">Réalisations</div>
+        <h2 class="reveal">Des sites qui<br>marquent les esprits</h2>
+      </div>
+    </div>
+
+    <div class="prj-grid">
+      <div class="prj-card reveal">
+        <div class="prj-browser">
+          <div class="prj-bar">
+            <div class="prj-dots"><span></span><span></span><span></span></div>
+            <div class="prj-url-bar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              iaexpress.pro
+            </div>
+          </div>
+          <div class="prj-screen">
+            <img src="IAExpress.jpg" alt="IAExpress.pro — Formations IA à Valence" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">
+          </div>
+        </div>
+        <div class="prj-info">
+          <div class="prj-info-left">
+            <div class="prj-cat">Intelligence Artificielle · Site vitrine</div>
+            <div class="prj-name">IAExpress.pro</div>
+            <div class="prj-blurb">Plateforme dédiée à l'IA — design premium, UX soignée et positionnement expert sur un marché en pleine croissance.</div>
+          </div>
+          <a href="https://iaexpress.pro" target="_blank" rel="noopener" class="prj-visit">
+            Visiter le site
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M12 7L8 3M12 7L8 11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROCESS ────────────────────────────────────────── -->
+  <section id="process">
+    <div class="sec-label reveal">Notre méthode</div>
+    <h2 class="reveal">De l'idée au lancement,<br>une méthode éprouvée</h2>
+
+    <div class="proc-grid">
+      <div class="step reveal">
+        <div class="step-n">01</div>
+        <div class="step-t">Écoute & Stratégie</div>
+        <div class="step-d">Un premier rendez-vous pour comprendre votre activité, vos objectifs et votre cible. On construit ensemble le cahier des charges idéal.</div>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-n">02</div>
+        <div class="step-t">Design & Maquettes</div>
+        <div class="step-d">Conception graphique complète — maquettes interactives, typographie, palette de couleurs. Vous validez avant qu'on code.</div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-n">03</div>
+        <div class="step-t">Développement</div>
+        <div class="step-d">Intégration soignée, code propre, performances optimisées. Chaque fonctionnalité testée sur tous les appareils et navigateurs.</div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-n">04</div>
+        <div class="step-t">Lancement & Suivi</div>
+        <div class="step-d">Mise en ligne, formation à l'utilisation, SEO technique configuré. Et on reste là : support réactif et évolutions selon vos besoins.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────── -->
+  <section id="cta">
+    <div class="sec-label reveal" style="justify-content:center">Travaillons ensemble</div>
+    <h2 class="reveal">Votre prochain site<br>commence ici.</h2>
+    <p class="reveal d1">Que vous partiez de zéro ou que vous souhaitiez refondre un site existant, faisons ensemble quelque chose dont vous serez fier.</p>
+    <a href="#contact" class="btn-primary reveal d2" style="margin:0 auto;display:inline-flex">
+      Prendre contact
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <!-- ── CONTACT ────────────────────────────────────────── -->
+  <section id="contact">
+    <div class="cnt-grid">
+      <div>
+        <div class="sec-label reveal">Contact</div>
+        <h2 class="reveal">Parlons de<br>votre projet</h2>
+
+        <div class="cnt-items reveal d1">
+          <div class="cnt-item">
+            <div class="cnt-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.07 2.18C.07 1.09.95.07 2.05.07h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+            </div>
+            <div>
+              <div class="cnt-lbl">Téléphone</div>
+              <div class="cnt-val"><a href="tel:+33681942672">06 81 94 26 72</a></div>
+            </div>
+          </div>
+
+          <div class="cnt-item">
+            <div class="cnt-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <div class="cnt-lbl">Email</div>
+              <div class="cnt-val"><a href="mailto:contact@luciole-studio.fr">contact@luciole-studio.fr</a></div>
+            </div>
+          </div>
+
+          <div class="cnt-item">
+            <div class="cnt-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="cnt-lbl">Adresse</div>
+              <div class="cnt-val">207 avenue Maurice Faure<br>26000 Valence</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form class="form reveal d2" id="contact-form">
+        <div class="frow">
+          <div class="fgrp">
+            <label for="fname">Votre nom</label>
+            <input type="text" id="fname" placeholder="Jean Dupont" required>
+          </div>
+          <div class="fgrp">
+            <label for="femail">Email</label>
+            <input type="email" id="femail" placeholder="jean@exemple.fr" required>
+          </div>
+        </div>
+        <div class="fgrp">
+          <label for="fphone">Téléphone</label>
+          <input type="tel" id="fphone" placeholder="06 XX XX XX XX">
+        </div>
+        <div class="fgrp">
+          <label for="ftype">Type de projet</label>
+          <select id="ftype">
+            <option value="">Choisissez une option</option>
+            <option>Site vitrine</option>
+            <option>E-commerce</option>
+            <option>Refonte de site</option>
+            <option>Application web</option>
+            <option>Identité visuelle</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="fgrp">
+          <label for="fmsg">Décrivez votre projet</label>
+          <textarea id="fmsg" placeholder="Parlez-moi de votre activité, de vos objectifs, de votre calendrier..." required></textarea>
+        </div>
+        <button type="submit" class="btn-sub" id="submit-btn">
+          Envoyer ma demande
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer>
+    <div class="ftr-top">
+      <div>
+        <a href="#" class="ftr-logo">LUCIOLE <span class="logo-dot"></span></a>
+        <p class="ftr-tag">Studio de Design Web · Valence, Drôme</p>
+      </div>
+      <nav class="ftr-nav">
+        <div class="ftr-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#services">Site vitrine</a></li>
+            <li><a href="#services">E-commerce</a></li>
+            <li><a href="#services">Référencement SEO</a></li>
+            <li><a href="#services">Identité visuelle</a></li>
+          </ul>
+        </div>
+        <div class="ftr-col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#about">À propos</a></li>
+            <li><a href="#projects">Réalisations</a></li>
+            <li><a href="#process">Méthode</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div class="ftr-bot">
+      <p class="ftr-copy">© 2024 Luciole Studio — Josselin Boullery. Tous droits réservés.</p>
+      <p class="ftr-siret">SIRET 52113959200054 · 207 avenue Maurice Faure, 26000 Valence</p>
+    </div>
+  </footer>
+
+  <script>
+    // ── CURSOR ──────────────────────────────────────────────
+    const cur = document.getElementById('cur');
+    const curRing = document.getElementById('cur-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top  = my + 'px';
+    });
+
+    (function animRing() {
+      rx += (mx - rx) * 0.11;
+      ry += (my - ry) * 0.11;
+      curRing.style.left = rx + 'px';
+      curRing.style.top  = ry + 'px';
+      requestAnimationFrame(animRing);
+    })();
+
+    document.querySelectorAll('a,button,.srv-card,.prj-card,.step').forEach(el => {
+      el.addEventListener('mouseenter', () => { cur.classList.add('active'); curRing.classList.add('active'); });
+      el.addEventListener('mouseleave', () => { cur.classList.remove('active'); curRing.classList.remove('active'); });
+    });
+
+    // ── PRELOADER ───────────────────────────────────────────
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('preloader').classList.add('hidden');
+      }, 1600);
+    });
+
+    // ── NAV SCROLL ──────────────────────────────────────────
+    const nav = document.getElementById('nav');
+    const prog = document.getElementById('scroll-progress');
+
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+      prog.style.width = pct + '%';
+    }, { passive: true });
+
+    // ── FIREFLIES ────────────────────────────────────────────
+    const canvas = document.getElementById('fireflies');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const N = 65;
+    const flies = Array.from({ length: N }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      a: Math.random() * 0.5 + 0.05,
+      ta: Math.random() * 0.65 + 0.1,
+      sz: Math.random() * 1.6 + 0.4,
+      spd: Math.random() * 0.012 + 0.003,
+      warm: Math.random() > 0.72,
+    }));
+
+    function drawFlies() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const f of flies) {
+        f.x += f.vx; f.y += f.vy;
+        if (f.a < f.ta) f.a += f.spd; else f.ta = Math.random() * 0.45 + 0.05;
+        if (f.x < 0) f.x = canvas.width;
+        if (f.x > canvas.width) f.x = 0;
+        if (f.y < 0) f.y = canvas.height;
+        if (f.y > canvas.height) f.y = 0;
+
+        ctx.save();
+        ctx.globalAlpha = f.a;
+        const col = f.warm ? '#ffec88' : '#c2ff4d';
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = col;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.sz, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      requestAnimationFrame(drawFlies);
+    }
+    drawFlies();
+
+    // ── SCROLL REVEAL ────────────────────────────────────────
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // ── SMOOTH SCROLL ────────────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+
+    // ── FORM ────────────────────────────────────────────────
+    document.getElementById('contact-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      btn.innerHTML = 'Message envoyé ✓';
+      btn.style.background = '#4ade80';
+      btn.style.pointerEvents = 'none';
+      setTimeout(() => {
+        btn.innerHTML = 'Envoyer ma demande <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        btn.style.background = '';
+        btn.style.pointerEvents = '';
+        e.target.reset();
+      }, 3500);
+    });
+  </script>
+</body>
+</html>
