@@ -94,13 +94,13 @@
     @keyframes fadeIn { to { opacity:1; } }
 
     /* ─── NAV ──────────────────────────────────────────── */
-    nav {
+    #nav {
       position:fixed; top:0; left:0; right:0; z-index:100;
       padding: 1.5rem clamp(1.5rem,5vw,4rem);
       display:flex; align-items:center; justify-content:space-between;
       transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
     }
-    nav.scrolled {
+    #nav.scrolled {
       background: rgba(6,6,16,0.88);
       backdrop-filter: blur(24px);
       padding-top: 1rem; padding-bottom: 1rem;
