@@ -126,7 +126,11 @@
     .nav-cta {
       background:var(--accent) !important; color:#060610 !important;
       padding:0.6rem 1.5rem; border-radius:100px; font-weight:600 !important;
+      white-space:nowrap;
       transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    @media(max-width:640px){
+      .nav-cta { padding:0.5rem 1rem; font-size:0.78rem !important; }
     }
     .nav-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(194,255,77,0.3); }
 
