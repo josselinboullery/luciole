@@ -871,20 +871,20 @@
         <div class="frow">
           <div class="fgrp">
             <label for="fname">Votre nom</label>
-            <input type="text" id="fname" placeholder="Jean Dupont" required>
+            <input type="text" id="fname" name="name" placeholder="Jean Dupont" required>
           </div>
           <div class="fgrp">
             <label for="femail">Email</label>
-            <input type="email" id="femail" placeholder="jean@exemple.fr" required>
+            <input type="email" id="femail" name="email" placeholder="jean@exemple.fr" required>
           </div>
         </div>
         <div class="fgrp">
           <label for="fphone">Téléphone</label>
-          <input type="tel" id="fphone" placeholder="06 XX XX XX XX">
+          <input type="tel" id="fphone" name="phone" placeholder="06 XX XX XX XX">
         </div>
         <div class="fgrp">
           <label for="ftype">Type de projet</label>
-          <select id="ftype">
+          <select id="ftype" name="type">
             <option value="">Choisissez une option</option>
             <option>Site vitrine</option>
             <option>E-commerce</option>
@@ -896,7 +896,7 @@
         </div>
         <div class="fgrp">
           <label for="fmsg">Décrivez votre projet</label>
-          <textarea id="fmsg" placeholder="Parlez-moi de votre activité, de vos objectifs, de votre calendrier..." required></textarea>
+          <textarea id="fmsg" name="message" placeholder="Parlez-moi de votre activité, de vos objectifs, de votre calendrier..." required></textarea>
         </div>
         <button type="submit" class="btn-sub" id="submit-btn">
           Envoyer ma demande
